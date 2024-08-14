@@ -10,6 +10,10 @@
 #include <shapes.h>
 #include <globals.h>
 
+#define CPP_SHADER_INCLUDE
+#include <position.vert>
+#include <position.frag>
+
 #include <iostream>
 
 // camera
@@ -46,17 +50,55 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
+    // build and compile shaders
+    Shader shader{};
+    shader.compile(positionVert, positionFrag);
+
+    // configure shaders
+
     // render loop
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = static_cast<float>(glfwGetTime());
         GLOBALS::deltaTime = currentFrame - GLOBALS::lastFrame;
         GLOBALS::lastFrame = currentFrame;
 
-        // intput
+        // input
         processInput(window);
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        // projection and view matrices
+        glm::mat4 projection{ glm::perspective(glm::radians(camera.getZoom()),
+            static_cast<float>(GLOBALS::SCR_WIDTH) / static_cast<float>(GLOBALS::SCR_HEIGHT), 0.1f, 1000.0f) };
+        glm::mat4 view{ camera.getViewMatrix() };
+
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // render
+        // -------------------------------------------------
+        glm::mat4 model{ 1.0f };
+        shader.use();
+        shader.setMatrix4("projection", projection);
+        shader.setMatrix4("view", view);
+
+        for (int z = -50; z < 50; ++z) {
+            for (int x = -50; x < 50; ++x) {
+                float u{ x * 0.02f };
+                float v{ z * 0.02f };
+                float r1{ 0.7f + 0.1f * glm::sin(glm::pi<float>() * (6.0f * u + 0.5f * currentFrame)) };
+                float r2{ 0.15f + 0.05f * glm::sin(glm::pi<float>() * (8.0f * u + 4.0f * v + 2.0f * currentFrame)) };
+                float s{ 0.5f + r1 + r2 * glm::cos(glm::pi<float>() * v) };
+
+                model = glm::translate(model, glm::vec3{
+                    s * glm::sin(glm::pi<float>() * u),
+                    r2 * glm::sin(glm::pi<float>() * v),
+                    s * glm::cos(glm::pi<float>() * u) });
+                model = glm::scale(model, glm::vec3{ 0.05f });
+                shader.setMatrix4("model", model);
+                renderCube();
+
+                model = glm::mat4{ 1.0f };
+            }
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
