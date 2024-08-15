@@ -18,6 +18,7 @@
 
 // camera
 Camera camera{ glm::vec3{0.0f, 0.0f, 3.0f} };
+unsigned int cubeVAO{ 0 };
 
 void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -50,6 +51,15 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
+    // objects
+    int amount{ 40000 };
+    glm::mat4* modelMatrices{ new glm::mat4[amount]{} };
+    unsigned int instanceVBO{};
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+    
+
     // build and compile shaders
     Shader shader{};
     shader.compile(positionVert, positionFrag);
@@ -75,35 +85,36 @@ int main() {
 
         // render
         // -------------------------------------------------
-        glm::mat4 model{ 1.0f };
         shader.use();
         shader.setMatrix4("projection", projection);
         shader.setMatrix4("view", view);
 
-        for (int z = -50; z < 50; ++z) {
-            for (int x = -50; x < 50; ++x) {
-                float u{ x * 0.02f };
+        int index = 0;
+        for (int z = -100; z < 100; ++z) {
+            for (int x = -100; x < 100; ++x) {
+                float u{ x * 0.01f };
                 float v{ z * 0.02f };
-                float r1{ 0.7f + 0.1f * glm::sin(glm::pi<float>() * (6.0f * u + 0.5f * currentFrame)) };
-                float r2{ 0.15f + 0.05f * glm::sin(glm::pi<float>() * (8.0f * u + 4.0f * v + 2.0f * currentFrame)) };
+                float r1{ 0.7f + 0.1f * glm::sin(glm::pi<float>() * (8.0f * u + 0.5f * currentFrame)) };
+                float r2{ 0.15f + 0.05f * glm::sin(glm::pi<float>() * (16.0f * u + 8.0f * v + 3.0f * currentFrame)) };
                 float s{ 0.5f + r1 + r2 * glm::cos(glm::pi<float>() * v) };
 
-                model = glm::translate(model, glm::vec3{
+                translations[index] = glm::vec3{
                     s * glm::sin(glm::pi<float>() * u),
                     r2 * glm::sin(glm::pi<float>() * v),
-                    s * glm::cos(glm::pi<float>() * u) });
-                model = glm::scale(model, glm::vec3{ 0.05f });
-                shader.setMatrix4("model", model);
+                    s * glm::cos(glm::pi<float>() * u) };
+
+                scales[index] = glm::vec3{ 0.015f };
                 renderCube();
 
-                model = glm::mat4{ 1.0f };
+                ++index;
             }
         }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
+    delete[] translations;
+    delete[] scales;
     glfwTerminate();
     return 0;
 }
@@ -161,7 +172,6 @@ void mouseCallback(GLFWwindow*, double xPos, double yPos) {
     camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
-unsigned int cubeVAO{ 0 };
 unsigned int cubeVBO{ 0 };
 void renderCube() {
 

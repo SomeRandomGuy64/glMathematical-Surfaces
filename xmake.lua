@@ -12,6 +12,7 @@ target("glMathematical-Surfaces")
     -- Set the include directories
     add_includedirs("src/Header Files")
     add_includedirs("src/Includes")
+    add_includedirs("src/Shaders")
 
     -- Add source files
     add_files("src/*.cpp")
