@@ -2,8 +2,8 @@
 
 namespace GLOBALS {
 	// window settings
-	static inline constexpr unsigned int SCR_WIDTH{ 1920 };
-	static inline constexpr unsigned int SCR_HEIGHT{ 1080 };
+	static inline constexpr unsigned int SCR_WIDTH{ 1600 };
+	static inline constexpr unsigned int SCR_HEIGHT{ 900 };
 
 	// constants
 	static inline constexpr float PI{ 3.1415926f };
