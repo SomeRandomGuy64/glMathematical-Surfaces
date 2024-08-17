@@ -18,10 +18,12 @@ float r1 = 0.7 + 0.1 * sin(PI * (8.0 * u + 0.5 * xTimeZ.y));
 float r2 = 0.15 + 0.05 * sin(PI * (16.0 * u + 8.0 * v + 3.0 * xTimeZ.y));
 float s = 0.5 + r1 + r2 * cos(PI * v);
 
+const float scale = 0.0075;
+
 mat4 modelMat = mat4(
-0.0075, 0.0,    0.0,    0.0,
-0.0,    0.0075, 0.0,    0.0,
-0.0,    0.0,    0.0075, 0.0,
+scale, 0.0,   0.0,   0.0,
+0.0,   scale, 0.0,   0.0,
+0.0,   0.0,   scale, 0.0,
 s * sin(PI * u), r2 * sin(PI * v), s * cos(PI * u), 1.0
 );
 

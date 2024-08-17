@@ -170,7 +170,6 @@ void mouseCallback(GLFWwindow*, double xPos, double yPos) {
     camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
-unsigned int cubeVAO{ 0 };
 unsigned int cubeVBO{ 0 };
 void renderCube(int instanceAmount) {
 
