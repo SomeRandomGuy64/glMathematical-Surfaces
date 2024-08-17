@@ -18,13 +18,14 @@
 
 // camera
 Camera camera{ glm::vec3{0.0f, 0.0f, 3.0f} };
-unsigned int cubeVAO{ 0 };
+
+unsigned int cubeVAO{};
 unsigned int instanceVBO{};
 
 void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouseCallback(GLFWwindow*, double xPos, double yPos);
-void renderCube(int instanceCount);
+void renderCube(int instanceAmount);
 
 int main() {
     glfwInit();
@@ -55,7 +56,7 @@ int main() {
 
     // instance stuff
     constexpr int amount{ 160000 };
-    glm::mat4* modelMatrices{ new glm::mat4[amount]{} };
+    glm::vec3* instanceData{ new glm::vec3[amount]{} };
 
     // build and compile shaders
     Shader shader{};
@@ -86,50 +87,22 @@ int main() {
         shader.setMatrix4("projection", projection);
         shader.setMatrix4("view", view);
 
-        glm::mat4 model{ 1.0f };
-
         int index = 0;
         for (int z = -200; z < 200; ++z) {
             for (int x = -200; x < 200; ++x) {
-                float u{ x * 0.005f };
-                float v{ z * 0.01f };
-                float r1{ 0.7f + 0.1f * glm::sin(glm::pi<float>() * (8.0f * u + 0.5f * currentFrame)) };
-                float r2{ 0.15f + 0.05f * glm::sin(glm::pi<float>() * (16.0f * u + 8.0f * v + 3.0f * currentFrame)) };
-                float s{ 0.5f + r1 + r2 * glm::cos(glm::pi<float>() * v) };
-
-                model = glm::translate(model, glm::vec3{
-                    s * glm::sin(glm::pi<float>() * u),
-                    r2 * glm::sin(glm::pi<float>() * v),
-                    s * glm::cos(glm::pi<float>() * u) });
-
-                model = glm::scale(model, glm::vec3{ 0.0075f });
-
-                modelMatrices[index] = model;
-                model = glm::mat4{ 1.0f };
-
+                instanceData[index] = glm::vec3{ x, currentFrame, z };
                 ++index;
             }
         }
 
         glGenBuffers(1, &instanceVBO);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::vec3), &instanceData[0], GL_STATIC_DRAW);
 
         glBindVertexArray(cubeVAO);
-        std::size_t vec4Size{ sizeof(glm::vec4) };
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * static_cast<GLsizei>(vec4Size), (void*)0);
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * static_cast<GLsizei>(vec4Size), (void*)(vec4Size));
-        glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * static_cast<GLsizei>(vec4Size), (void*)(2 * vec4Size));
-        glEnableVertexAttribArray(6);
-        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * static_cast<GLsizei>(vec4Size), (void*)(3 * vec4Size));
-
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
         glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
-        glVertexAttribDivisor(6, 1);
 
         renderCube(amount);
 
@@ -139,7 +112,7 @@ int main() {
         glfwPollEvents();
         glDeleteBuffers(1, &instanceVBO);
     }
-    delete[] modelMatrices;
+    delete[] instanceData;
     glfwTerminate();
     return 0;
 }
@@ -197,8 +170,9 @@ void mouseCallback(GLFWwindow*, double xPos, double yPos) {
     camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
+unsigned int cubeVAO{ 0 };
 unsigned int cubeVBO{ 0 };
-void renderCube(int instanceCount) {
+void renderCube(int instanceAmount) {
 
     if (cubeVAO == 0) {
         glGenVertexArrays(1, &cubeVAO);
@@ -219,6 +193,6 @@ void renderCube(int instanceCount) {
     }
 
     glBindVertexArray(cubeVAO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, instanceCount);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, instanceAmount);
     glBindVertexArray(0);
 }
