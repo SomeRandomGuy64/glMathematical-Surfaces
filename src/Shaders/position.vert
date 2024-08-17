@@ -102,10 +102,11 @@ mat4 torus(float u, float v, float t) {
 	);
 }
 
-float u = xTimeZ.x * 0.0025;
-float v = xTimeZ.z * 0.0025;
+float u = xTimeZ.x * 0.002;
+float v = xTimeZ.z * 0.002;
 
 mat4 mixMat4(mat4 matA, mat4 matB, float t) {
+	t = smoothstep(0.0, 1.0, t);
 	return (matA * (1.0 - t)) + (matB * t);
 }
 
