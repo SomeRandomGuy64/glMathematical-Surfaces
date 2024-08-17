@@ -12,13 +12,13 @@ out vec2 TexCoords;
 uniform mat4 projection;
 uniform mat4 view;
 
-float u = xTimeZ.x * 0.005;
-float v = xTimeZ.z * 0.01;
+float u = xTimeZ.x * 0.002;
+float v = xTimeZ.z * 0.004;
 float r1 = 0.7 + 0.1 * sin(PI * (8.0 * u + 0.5 * xTimeZ.y));
 float r2 = 0.15 + 0.05 * sin(PI * (16.0 * u + 8.0 * v + 3.0 * xTimeZ.y));
 float s = 0.5 + r1 + r2 * cos(PI * v);
 
-const float scale = 0.0075;
+const float scale = 0.003;
 
 mat4 modelMat = mat4(
 scale, 0.0,   0.0,   0.0,

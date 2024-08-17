@@ -55,7 +55,7 @@ int main() {
     glEnable(GL_CULL_FACE);
 
     // instance stuff
-    constexpr int amount{ 160000 };
+    constexpr int amount{ 1000000 };
     glm::vec3* instanceData{ new glm::vec3[amount]{} };
 
     // build and compile shaders
@@ -88,8 +88,8 @@ int main() {
         shader.setMatrix4("view", view);
 
         int index = 0;
-        for (int z = -200; z < 200; ++z) {
-            for (int x = -200; x < 200; ++x) {
+        for (int z = -500; z < 500; ++z) {
+            for (int x = -500; x < 500; ++x) {
                 instanceData[index] = glm::vec3{ x, currentFrame, z };
                 ++index;
             }
@@ -171,27 +171,33 @@ void mouseCallback(GLFWwindow*, double xPos, double yPos) {
 }
 
 unsigned int cubeVBO{ 0 };
+unsigned int cubeEBO{ 0 };
+
 void renderCube(int instanceAmount) {
 
     if (cubeVAO == 0) {
         glGenVertexArrays(1, &cubeVAO);
         glGenBuffers(1, &cubeVBO);
+        glGenBuffers(1, &cubeEBO);
 
         glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(Shapes::cube), &Shapes::cube, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Shapes::cubeIndices), Shapes::cubeIndices, GL_STATIC_DRAW);
 
         glBindVertexArray(cubeVAO);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
 
     glBindVertexArray(cubeVAO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, instanceAmount);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO);
+    glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, instanceAmount);
     glBindVertexArray(0);
 }
