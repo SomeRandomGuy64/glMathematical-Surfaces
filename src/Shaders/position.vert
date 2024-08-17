@@ -105,9 +105,26 @@ mat4 torus(float u, float v, float t) {
 float u = xTimeZ.x * 0.0025;
 float v = xTimeZ.z * 0.0025;
 
+mat4 mixMat4(mat4 matA, mat4 matB, float t) {
+	return (matA * (1.0 - t)) + (matB * t);
+}
+
 void main() {
-	gl_Position = projection * view * torus(u, v, xTimeZ.y) * vec4(aPos, 1.0);
-	FragPos = vec3(torus(u, v, xTimeZ.y) * vec4(aPos, 1.0));
+	if (int(xTimeZ.y) % 8 < 3) {
+		gl_Position = projection * view * torus(u, v, xTimeZ.y) * vec4(aPos, 1.0);
+		FragPos = vec3(torus(u, v, xTimeZ.y) * vec4(aPos, 1.0));
+	} 
+	else if (int(xTimeZ.y) % 8 == 3) {
+		gl_Position = projection * view * mixMat4(torus(u, v, xTimeZ.y), ripple(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0);
+		FragPos = vec3(mixMat4(torus(u, v, xTimeZ.y), ripple(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0));
+	}
+	else if (int(xTimeZ.y) % 8 < 7){
+		gl_Position = projection * view * ripple(u, v, xTimeZ.y) * vec4(aPos, 1.0);
+		FragPos = vec3(ripple(u, v, xTimeZ.y) * vec4(aPos, 1.0));
+	} else {
+		gl_Position = projection * view * mixMat4(ripple(u, v, xTimeZ.y), torus(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0);
+		FragPos = vec3(mixMat4(ripple(u, v, xTimeZ.y), torus(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0));
+	}
 	TexCoords = aTexCoords;
 }
 
