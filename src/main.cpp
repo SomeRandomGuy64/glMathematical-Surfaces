@@ -55,7 +55,7 @@ int main() {
     glEnable(GL_CULL_FACE);
 
     // instance stuff
-    constexpr int amount{ 1000000 };
+    constexpr int amount{ 1999396 };
     glm::vec3* instanceData{ new glm::vec3[amount]{} };
 
     // build and compile shaders
@@ -88,8 +88,8 @@ int main() {
         shader.setMatrix4("view", view);
 
         int index = 0;
-        for (int z = -500; z < 500; ++z) {
-            for (int x = -500; x < 500; ++x) {
+        for (int z = -707; z < 707; ++z) {
+            for (int x = -707; x < 707; ++x) {
                 instanceData[index] = glm::vec3{ x, currentFrame, z };
                 ++index;
             }

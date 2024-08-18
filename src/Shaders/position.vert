@@ -12,7 +12,7 @@ out vec2 TexCoords;
 uniform mat4 projection;
 uniform mat4 view;
 
-const float scale = 0.003;
+const float scale = 0.0015;
 
 mat4 plane(float u, float v, float t) {
 
@@ -102,8 +102,8 @@ mat4 torus(float u, float v, float t) {
 	);
 }
 
-float u = xTimeZ.x * 0.002;
-float v = xTimeZ.z * 0.002;
+float u = xTimeZ.x * sqrt(2.0007) / 1000;
+float v = xTimeZ.z * sqrt(2.0007) / 1000;
 
 mat4 mixMat4(mat4 matA, mat4 matB, float t) {
 	t = smoothstep(0.0, 1.0, t);
@@ -111,20 +111,45 @@ mat4 mixMat4(mat4 matA, mat4 matB, float t) {
 }
 
 void main() {
-	if (int(xTimeZ.y) % 8 < 3) {
+	if (int(xTimeZ.y) % 20 < 3) {
+		gl_Position = projection * view * wave(u, v, xTimeZ.y) * vec4(aPos, 1.0);
+		FragPos = vec3(wave(u, v, xTimeZ.y) * vec4(aPos, 1.0));
+	} 
+	else if (int(xTimeZ.y) % 20 == 3) {
+		gl_Position = projection * view * mixMat4(wave(u, v, xTimeZ.y), multiWave(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0);
+		FragPos = vec3(mixMat4(wave(u, v, xTimeZ.y), multiWave(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0));
+	}
+	else if (int(xTimeZ.y) % 20 < 7) {
+		gl_Position = projection * view * multiWave(u, v, xTimeZ.y) * vec4(aPos, 1.0);
+		FragPos = vec3(multiWave(u, v, xTimeZ.y) * vec4(aPos, 1.0));
+	} 
+	else if (int(xTimeZ.y) % 20 == 7) {
+		gl_Position = projection * view * mixMat4(multiWave(u, v, xTimeZ.y), ripple(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0);
+		FragPos = vec3(mixMat4(multiWave(u, v, xTimeZ.y), ripple(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0));
+	}
+	else if (int(xTimeZ.y) % 20 < 11) {
+		gl_Position = projection * view * ripple(u, v, xTimeZ.y) * vec4(aPos, 1.0);
+		FragPos = vec3(ripple(u, v, xTimeZ.y) * vec4(aPos, 1.0));
+	} 
+	else if (int(xTimeZ.y) % 20 == 11) {
+		gl_Position = projection * view * mixMat4(ripple(u, v, xTimeZ.y), sphere(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0);
+		FragPos = vec3(mixMat4(ripple(u, v, xTimeZ.y), sphere(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0));
+	}
+	else if (int(xTimeZ.y) % 20 < 15) {
+		gl_Position = projection * view * sphere(u, v, xTimeZ.y) * vec4(aPos, 1.0);
+		FragPos = vec3(sphere(u, v, xTimeZ.y) * vec4(aPos, 1.0));
+	} 
+	else if (int(xTimeZ.y) % 20 == 15) {
+		gl_Position = projection * view * mixMat4(sphere(u, v, xTimeZ.y), torus(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0);
+		FragPos = vec3(mixMat4(sphere(u, v, xTimeZ.y), torus(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0));
+	}
+	else if (int(xTimeZ.y) % 20 < 19) {
 		gl_Position = projection * view * torus(u, v, xTimeZ.y) * vec4(aPos, 1.0);
 		FragPos = vec3(torus(u, v, xTimeZ.y) * vec4(aPos, 1.0));
 	} 
-	else if (int(xTimeZ.y) % 8 == 3) {
-		gl_Position = projection * view * mixMat4(torus(u, v, xTimeZ.y), ripple(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0);
-		FragPos = vec3(mixMat4(torus(u, v, xTimeZ.y), ripple(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0));
-	}
-	else if (int(xTimeZ.y) % 8 < 7){
-		gl_Position = projection * view * ripple(u, v, xTimeZ.y) * vec4(aPos, 1.0);
-		FragPos = vec3(ripple(u, v, xTimeZ.y) * vec4(aPos, 1.0));
-	} else {
-		gl_Position = projection * view * mixMat4(ripple(u, v, xTimeZ.y), torus(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0);
-		FragPos = vec3(mixMat4(ripple(u, v, xTimeZ.y), torus(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0));
+	else {
+		gl_Position = projection * view * mixMat4(torus(u, v, xTimeZ.y), wave(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0);
+		FragPos = vec3(mixMat4(torus(u, v, xTimeZ.y), wave(u, v, xTimeZ.y), xTimeZ.y - floor(xTimeZ.y)) * vec4(aPos, 1.0));
 	}
 	TexCoords = aTexCoords;
 }
