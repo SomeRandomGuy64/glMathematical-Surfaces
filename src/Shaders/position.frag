@@ -7,7 +7,7 @@ in vec2 TexCoords;
 out vec4 FragColour;
 
 void main() {
-	FragColour = vec4(FragPos + 0.5, 1.0);
+	FragColour = vec4(FragPos + 0.75, 1.0);
 }
 
 )";
