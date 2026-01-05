@@ -19,8 +19,8 @@ target("glMathematical-Surfaces")
     add_files("src/*.c")
 
     -- Link against OpenGL (system library)
-    add_syslinks("opengl32")  -- For Windows
-    -- add_syslinks("GL")  -- For Linux or macOS
+    -- add_syslinks("opengl32")  -- For Windows
+    add_syslinks("GL")  -- For Linux or macOS
 
     -- Link against GLFW (using the alias we set earlier)
     add_packages("glfw")
